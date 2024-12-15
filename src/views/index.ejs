@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Bot Controller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .control-panel {
+            flex: 1;
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewer-panel {
+            flex: 2;
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .status-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .controls-info {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .key {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #34495e;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+
+        iframe {
+            flex: 1;
+            border: none;
+            border-radius: 8px;
+            background-color: #2c3e50;
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="control-panel">
+            <h1>Bot Controller</h1>
+            
+            <div class="chat-input">
+                <input type="text" id="chatMessage" placeholder="Enter chat message...">
+                <button onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+
+            <div class="status-panel">
+                <div class="status-card">
+                    <i class="fas fa-heart status-icon"></i>
+                    <div class="status-value" id="health">20</div>
+                    <div>Health</div>
+                </div>
+                <div class="status-card">
+                    <i class="fas fa-drumstick-bite status-icon"></i>
+                    <div class="status-value" id="food">20</div>
+                    <div>Food</div>
+                </div>
+                <div class="status-card">
+                    <i class="fas fa-location-dot status-icon"></i>
+                    <div class="status-value" id="position">~</div>
+                    <div>Position</div>
+                </div>
+            </div>
+
+            <div class="controls-info">
+                <h3>Controls</h3>
+                <p><span class="key">W</span> Forward</p>
+                <p><span class="key">S</span> Backward</p>
+                <p><span class="key">A</span> Left</p>
+                <p><span class="key">D</span> Right</p>
+                <p><span class="key">Space</span> Jump</p>
+            </div>
+        </div>
+
+        <div class="viewer-panel">
+            <h2>Live View</h2>
+            <iframe src="http://localhost:3001" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let activeKeys = new Set();
+
+        socket.on('botStatus', (status) => {
+            document.getElementById('health').textContent = Math.round(status.health);
+            document.getElementById('food').textContent = Math.round(status.food);
+            document.getElementById('position').textContent = 
+                `${Math.round(status.position.x)}, ${Math.round(status.position.y)}, ${Math.round(status.position.z)}`;
+        });
+
+        async function sendChat() {
+            const message = document.getElementById('chatMessage').value;
+            if (!message) return;
+
+            try {
+                await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                document.getElementById('chatMessage').value = '';
+            } catch (error) {
+                console.error('Error sending chat:', error);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            const key = e.key.toLowerCase();
+            if (!activeKeys.has(key) && ['w', 'a', 's', 'd', ' '].includes(key)) {
+                activeKeys.add(key);
+                socket.emit('keyPress', key);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (activeKeys.has(key)) {
+                activeKeys.delete(key);
+                socket.emit('keyRelease', key);
+            }
+        });
+
+        // Prevent space from scrolling the page
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

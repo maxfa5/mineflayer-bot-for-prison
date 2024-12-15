@@ -1,0 +1,14 @@
+{
+    "host": "test-LCIP.aternos.me",
+    "port": 59573,
+    // host: "mc.inferlife.org",
+    // port: 25565,
+    "username": "SunShineee",
+    "version": "1.19.4",
+    "plugins": ["AutoAuth"],
+    "AutoAuth": {
+      "logging": true,
+      "password": "1",
+      "ignoreRepeat": true
+    }
+  }
