@@ -1,9 +1,12 @@
 // ./controllers/botController.js
 const loggers = require('../logging.js');
+const clickToMenu = require('../clickToMenu.js');
+
 const logger = loggers.logger;
 let bot = null;
 let io = null;
 let controlStates = {
+  clickToMenu: false,
   forward: false,
   back: false,
   left: false,
@@ -45,6 +48,7 @@ function init(mineflayerBot, socketIO) {
 
 function handleKeyPress(key) {
   switch (key) {
+    case 'e': controlStates.clickToMenu = true; break;
     case 'w': controlStates.forward = true; break;
     case 's': controlStates.back = true; break;
     case 'a': controlStates.left = true; break;
@@ -56,17 +60,21 @@ function handleKeyPress(key) {
 
 function handleKeyRelease(key) {
   switch (key) {
+    case 'e': controlStates.clickToMenu = false; break;
     case 'w': controlStates.forward = false; break;
     case 's': controlStates.back = false; break;
     case 'a': controlStates.left = false; break;
     case 'd': controlStates.right = false; break;
     case ' ': controlStates.jump = false; break;
   }
+
   updateBotControls();
 }
 
 function updateBotControls() {
   if (!bot) return;
+  if(controlStates.clickToMenu){
+    clickToMenu.clickToMenu(bot, controlStates.clickToMenu);}
   bot.setControlState('forward', controlStates.forward);
   bot.setControlState('back', controlStates.back);
   bot.setControlState('left', controlStates.left);

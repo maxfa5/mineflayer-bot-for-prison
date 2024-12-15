@@ -5,12 +5,13 @@ const socketIO = require('socket.io');
 const express = require('express');
 const path = require('path');
 const AutoAuth = require('mineflayer-auto-auth');
-
+const clickToMenu = require('./clickToMenu.js');
+const readline = require('node:readline/promises');
 
 // TODO include from options.json
 const botConfig = {
-  // host: 'test-LCIP.aternos.me',
-  // port: 59573,
+  host: 'test-LCIP.aternos.me',
+  port: 59573,
   host: 'mc.inferlife.org',
   port: 25565,
   username: 'SunShineee',
@@ -23,7 +24,7 @@ const botConfig = {
   }
 }
 
-const bot = require('./bot2.js');
+let bot = require('./bot2.js');
 const botController = require('./controllers/botController');
 const webServer = require('./webServer');
 const loggers = require('./logging.js');
@@ -47,14 +48,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Initialize bot
 bot.init(botConfig, io);
 
+// bot.getBot().on("messagestr", function(messagestr)
+// {
+//   console.log(messagestr);
+// })
 // Initialize bot controller with socket.io
 botController.init(bot.getBot(), io);
 
 // Initialize web server
 webServer.init(app, bot.getBot(), io);
 
-
 // Start Express server
 server.listen(PORT_express_view, () => {
     logger.info(`Web interface running at http://localhost:${PORT_express_view}`);
   });
+
+

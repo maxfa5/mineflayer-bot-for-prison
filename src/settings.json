@@ -1,14 +1,19 @@
 {
+  "bot": {
     "host": "test-LCIP.aternos.me",
     "port": 59573,
-    // host: "mc.inferlife.org",
-    // port: 25565,
     "username": "SunShineee",
     "version": "1.19.4",
     "plugins": ["AutoAuth"],
     "AutoAuth": {
       "logging": true,
-      "password": "1",
+      "password": "46hd83j2...",
       "ignoreRepeat": true
     }
+  },
+  "digging": {
+    "x": 0,
+    "y": 60,
+    "radius": 5
   }
+}

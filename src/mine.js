@@ -4,9 +4,6 @@ const Movements = require('mineflayer-pathfinder').Movements;
 const pathfinder = require('mineflayer-pathfinder').pathfinder;
 const { GoalBlock, GoalXZ } = require('mineflayer-pathfinder').goals;
 const { Vec3 } = require('vec3');
-
-const config = require('./settings.json');
-
 const loggers = require('./logging.js');
 
 function circleWalk(bot, radius) {

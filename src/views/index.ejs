@@ -150,6 +150,7 @@
 
             <div class="controls-info">
                 <h3>Controls</h3>
+                <p><span class="key">e</span> clickMenu</p>
                 <p><span class="key">W</span> Forward</p>
                 <p><span class="key">S</span> Backward</p>
                 <p><span class="key">A</span> Left</p>
@@ -197,7 +198,7 @@
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
             const key = e.key.toLowerCase();
-            if (!activeKeys.has(key) && ['w', 'a', 's', 'd', ' '].includes(key)) {
+            if (!activeKeys.has(key) && ['w', 'a', 's', 'd', ' ', 'e'].includes(key)) {
                 activeKeys.add(key);
                 socket.emit('keyPress', key);
             }

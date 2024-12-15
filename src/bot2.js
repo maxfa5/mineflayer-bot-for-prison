@@ -9,7 +9,7 @@ const loggers = require('./logging.js');
 const logger = loggers.logger;
 
 let bot = null;
-let web_chest_options = {
+const web_chest_options = {
   port: 3002
 }
 
